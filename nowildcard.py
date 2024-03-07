@@ -127,8 +127,8 @@ def check_fqdn_for_wildcard(fqdn, iterations = 1):
             test_fqdn = f'{TEST_PREFIX}.{fqdn_level_up}'
             if resolve_fqdn(fqdn).difference(resolve_fqdn(test_fqdn)):
                 update_cache(fqdn_level_up, False)
-                print_debug(f'[-] Is not wildcard: {fqdn}', 2)
-                if i == iterations:
+                print_debug(f'[-] Is not wildcard: {fqdn} check: {i+1}/{iterations}', 2)
+                if i == iterations-1:
                     return False
             else:
                 update_cache(fqdn_level_up, True)
@@ -161,7 +161,7 @@ def process_fqdns(fqdns_chunk):
     fqdns_per_second = fqdns_processed_count / elapsed_time
 
     print_debug(f'[*] Thread {thread_id} exiting {len(results)} fqdns (W: {true_count} S: {false_count})', 1)
-    print_debug(f'[*] FQDNs processed per second: {fqdns_per_second:.2f}', 0)
+    print_debug(f'[*] Rate of FQDN processing (p/s): {fqdns_per_second:.2f}', 0)
 
     return results, thread_id  # Return the thread ID along with results
 
@@ -183,8 +183,8 @@ if __name__ == "__main__":
         for result in thread_results:
             results, thread_id = result.result()
             for fqdn, is_wildcard in results.items():
-                if is_wildcard:
-                    #print(f'[-] WILDCARD: {fqdn}')
+                if is_wildcard is True or is_wildcard is None:
+                    #print(f'[-] WILDCARD: {fqdn} | value {is_wildcard}')
                     pass
                 else:
                     print_debug(f'[+] STANDARD: {fqdn}', 1)
