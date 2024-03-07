@@ -30,6 +30,7 @@ MAX_FQDNS_PER_THREAD = args.chunksize
 stdio_lock = threading.Lock()
 cache_lock = threading.Lock()
 output_lock =threading.Lock() 
+stats_lock = threading.Lock()
 cache = {}
 
 fqdns_processed_count = 0
@@ -147,7 +148,9 @@ def process_fqdns(fqdns_chunk):
         fqdn = fqdn.strip()
         result = check_fqdn_for_wildcard(fqdn, args.iterations)
         results[fqdn] = result
-        fqdns_processed_count += 1
+        with stats_lock:
+            print_debug(f'[*] Thread {thread_id} processed count {fqdns_processed_count}', 4)
+            fqdns_processed_count += 1
 
     # Count the number of True (W) and False (S) results
     true_count = sum(1 for value in results.values() if value)
